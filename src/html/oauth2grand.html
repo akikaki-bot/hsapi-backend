@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+        <title> HSS-API | Oauth2 request </title>
+    </head>
+    <body>
+        <section class="section">
+            <div class="container has-text-centered is-two-thirds">
+                <div class="box">
+                    <h1 class="title"> Oauth2 </h1>
+                    <h1 class="subtitle"> アプリは権限を求めています。</h1>
+                    <p> このアプリに<strong>あなたの情報へのアクセス</strong>を許可しますか？</p>
+                    <br />
+                    <p> 認証が完了すると <span id="redirect"> ex </span>へリダイレクトされます。</p>
+                    <br />
+                    <button class="button is-danger is-medium" onclick="end()"> 否認 </button>
+                    <button class="button is-success is-medium" onclick="ok()"> 許可 </button>
+                </div>
+            </div>
+        </section>
+    </body>
+    <script>
+        const query = new URLSearchParams(window.location.search)
+        const redirect = query.has('redirect') && query.get('redirect')
+        const code = query.has('code') && query.get('code')
+        const type = query.has('type') && query.get('type')
+
+        async function end() {
+            disableButton()
+            const response = await fetch('/v1/oauth2',
+            {
+                method : "DELETE",
+                mode : "cors",
+                headers: {
+                    'Content-Type': 'application/json' // JSON形式のデータのヘッダー
+                },
+                body : JSON.stringify({
+                    token : `Bearer ${code}`
+                })
+            })
+            if(response.ok) {
+                location.href = "/v1/oauth2/end"
+            } else {
+                document.getElementById('redirect').innerHTML = "<strong> サーバーエラーが発生しました。</strong>"
+            }
+        }
+
+        async function ok() {
+            disableButton()
+            const response = await fetch('/v1/oauth2',
+            {
+                method : "PATCH",
+                mode : "cors",
+                headers: {
+                    'Content-Type': 'application/json' // JSON形式のデータのヘッダー
+                },
+                body : JSON.stringify({
+                    token : `Bearer ${code}`
+                })
+            })
+            if(response.ok) {
+                const data = await response.json();
+                console.log(data)
+                location.href = redirect+`?code=${data.body.data.userId.split('.')[1]}`
+            } else {
+                document.getElementById('redirect').innerHTML = "<strong> サーバーエラーが発生しました。</strong>"
+            }
+        }
+
+        window.onload = () => {
+            if( !(redirect || code || type) ) {
+                document.getElementById('redirect').innerHTML = "<strong> 認証は完了できません。不正なデータです。</strong>"
+                disableButton()
+                throw new Error('Oauth2 authorization error : Invaild query data.')
+            } 
+            document.getElementById('redirect').innerText = redirect
+        }
+
+        async function disableButton() {
+            const buttons = document.getElementsByClassName('button')
+                for(let i = 0; i < buttons.length; i++){
+                    buttons.item(i).disabled = true;
+                }
+        }
+
+    </script>
+</html>
