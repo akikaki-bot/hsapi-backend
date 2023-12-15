@@ -42,4 +42,16 @@ import oauth2patch from  "./route/auth/patch"
 app.patch('/v1/oauth2', oauth2patch)
 
 import post from "./route/auth/tokenget"
-app.post('/v1/token', post)
+app.post('/v1/user', post)
+
+import reject from "./route/auth/reject"
+app.get('/v1/oauth2/end', reject)
+
+import register from "./route/school/register"
+app.post(`/v1/school` , register )
+
+import get from "./route/school/get"
+app.get('/v1/school/:id', get)
+
+import patch from "./route/school/patch";
+app.patch("/v1/school", patch)

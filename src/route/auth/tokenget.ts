@@ -1,11 +1,12 @@
 
-
+import { JwtPayload } from "jsonwebtoken"
 
 
 import { Router , Request , Response } from "express";
 import { BaseRequest } from "../../types/baserequest";
 import { DatabaseCustomizer } from "../../plugins/database";
 import { Token } from "../../types/token";
+import { User } from "../../types/user";
 
 const app = Router()
 const db = new DatabaseCustomizer({
@@ -13,7 +14,7 @@ const db = new DatabaseCustomizer({
 })
 
 
-app.post("/v1/token", async ( req : Request , res : Response ) => {
+app.post("/v1/user", async ( req : Request , res : Response ) => {
     const RequestToken = req.body as Token
     if(typeof RequestToken.token === "undefined") return res.status(400).json({
         status : -1,
@@ -41,7 +42,7 @@ app.post("/v1/token", async ( req : Request , res : Response ) => {
 
     return res.status(200).json({
         status : 1,
-        body : user
+        body : typeof user === "object" && user.apiuser as User
     } as BaseRequest<any>)
 })
 

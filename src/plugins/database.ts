@@ -1,5 +1,6 @@
 import Keyv from "keyv";
 import { sign, verify } from "jsonwebtoken";
+import { User } from "../types/user";
 
 export interface DatabaseConfig {
     url: string
@@ -35,6 +36,10 @@ export class DatabaseCustomizer {
         return await this.keyv.get(key) as T
     }
 
+    async checkAdd( key : any ) : Promise<boolean> {
+        return typeof (await this.keyv.get( key ) ) === "undefined"
+    }
+
     /**
      * 
      * use for login
@@ -47,6 +52,19 @@ export class DatabaseCustomizer {
         return verify(token, password)
     }
 
+    generateUser( user : User ) {
+        if (
+            typeof process.env.oauth2time === "undefined" ||
+            typeof process.env.jwtKey === "undefined"
+        ) throw new Error('環境変数設定しろ禿')
+
+        try {
+            return sign({ apiuser : user}, process.env.jwtKey)
+        } catch (e) {
+            return false
+        }
+    }
+    /*
     generateUser(username: string) {
         if (
             typeof process.env.oauth2time === "undefined" ||
@@ -58,7 +76,7 @@ export class DatabaseCustomizer {
         } catch (e) {
             return false
         }
-    }
+    }*/
 
     /**
      * /api/v1 all required.

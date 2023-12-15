@@ -62,7 +62,7 @@
             if(response.ok) {
                 const data = await response.json();
                 console.log(data)
-                location.href = redirect+`?code=${data.body.data.userId.split('.')[1]}`
+                location.href = redirect+`?code=${data.body.data.userId}`
             } else {
                 document.getElementById('redirect').innerHTML = "<strong> サーバーエラーが発生しました。</strong>"
             }

@@ -13,12 +13,22 @@ const db = new DatabaseCustomizer({
 
 
 app.get("/v1/token", async ( req : Request , res : Response ) => {
-    const userToken = await db.generateUser(`test`)
-    await db.set(userToken.toString().split('.')[1], userToken)
+    const userToken = await db.generateUser({
+        hid : 1,
+        username : "開発者その2",
+        developer : true,
+        developerInfo : {
+            token : null,
+            redirects : ["http://localhost:3031/"],
+            applicationName : ["hs-api-dev-2"]
+        },
+        email : "nubejson@gmail.com"
+    })
+    await db.set(userToken.toString().split('.')[2], userToken)
     return res.status(200).json({
         status : 1,
         body : {
-            token : userToken
+            token : userToken.toString().split('.')[2]
         }
     } as BaseRequest<{ token : string}>)
 })

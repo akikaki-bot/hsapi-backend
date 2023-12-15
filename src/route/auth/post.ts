@@ -31,7 +31,15 @@ app.post("/v1/oauth2", async (req: Request, res: Response) => {
     )
 
     try {
-        const TokenVaildate = db.check(Token)
+        const _Token = await db.get(Token)
+        if(typeof _Token === "undefined") return res.status(400).json({
+            status : -1,
+            body : {
+                message : "Authoirzation failed. Check your token is vaild..."
+            }
+        } as BaseRequest<{ message : string }>)
+
+        const TokenVaildate = db.check(_Token)
         if (TokenVaildate){
             const token = db.oauth2Code(Token)
             await db.set<string>(token.split('.')[2] , token)
